@@ -20,7 +20,7 @@
           <a class="nav-link active" aria-current="page" href="#">Лента</a>
         </li>
        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Профиль</a>
+          <a class="nav-link active" aria-current="page" href="{% url 'profile my' %}">Профиль</a>
         </li>
           {% if user.is_authenticated %}
           <li class="nav-item">

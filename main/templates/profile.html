@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}
+Профиль
+{% endblock %}
+
+{% block content %}
+{% if not user.profile.exists %}<a href="{% url 'profile add bio' %}"><h2>Добавить био</h2></a>{% endif %}
+{% endblock %}
