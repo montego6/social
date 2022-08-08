@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 
 
 class Profile(models.Model):
-    avatar = models.ImageField(upload_to='media/avatars')
+    avatar = models.ImageField(upload_to='media/avatars/', null=True, blank=True)
     city = models.CharField(max_length=100, null=True)
     birthday = models.DateField(null=True)
     bio = models.TextField(null=True, blank=True)

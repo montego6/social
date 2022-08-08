@@ -1,7 +1,8 @@
-from django.shortcuts import render
-from .forms import SignUpForm, ProfileForm
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate
 from django.shortcuts import redirect
+from django.shortcuts import render
+
+from .forms import SignUpForm, ProfileForm
 
 # Create your views here.
 
@@ -31,11 +32,15 @@ def profile_my(request):
 
 def add_profile_bio(request):
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES)
+        form = ProfileForm(data=request.POST, files=request.FILES)
+        print(request.POST)
+        print(request.FILES)
         if form.is_valid():
             profile = form.save(commit=False)
+            print(profile)
             profile.user = request.user
-            profile.save()
+            # profile.save()
+            return redirect('profile my')
     else:
         form = ProfileForm()
     return render(request, 'form.html', {'form': form, 'title': 'Добавить био'})
