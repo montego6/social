@@ -24,7 +24,7 @@
         </li>
           {% if user.is_authenticated %}
           <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Выйти</a>
+          <a class="nav-link active" aria-current="page" href="{% url 'logout' %}">Выйти</a>
         </li>
           {% else %}
           <li class="nav-item">
