@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}
+Пост #{{ post.id }}
+{% endblock %}
+
+{% block content %}
+<img src="{{ post.image.url }}" width="300">
+<p>{{ post.text }}</p>
+{% endblock %}

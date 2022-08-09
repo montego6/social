@@ -5,7 +5,7 @@ from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
 from .forms import SignUpForm, ProfileForm, PostForm
-from .models import Profile
+from .models import Profile, Post
 
 # Create your views here.
 
@@ -66,3 +66,8 @@ def add_post(request):
     else:
         form = PostForm()
     return render(request, 'form.html', {'form': form, 'title': 'Добавить пост'})
+
+
+def detail_post(request, post_id):
+    post = Post.objects.get(id=post_id)
+    return render(request, 'post_detail.html', {'post': post})
