@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.views.generic.edit import UpdateView
 from django.urls import reverse
 
-from .forms import SignUpForm, ProfileForm
+from .forms import SignUpForm, ProfileForm, PostForm
 from .models import Profile
 
 # Create your views here.
@@ -53,3 +53,16 @@ class ProfileUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse("profile my")
+
+
+def add_post(request):
+    if request.method == 'POST':
+        form = PostForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.owner = request.user
+            post.save()
+            return redirect('profile my')
+    else:
+        form = PostForm()
+    return render(request, 'form.html', {'form': form, 'title': 'Добавить пост'})

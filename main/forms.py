@@ -2,7 +2,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
 from django.forms import ModelForm
-from .models import Profile
+from .models import Profile, Post
 
 
 class SignUpForm(UserCreationForm):
@@ -18,3 +18,9 @@ class ProfileForm(ModelForm):
     class Meta:
         model = Profile
         fields = ['avatar', 'city', 'birthday', 'bio']
+
+
+class PostForm(ModelForm):
+    class Meta:
+        model = Post
+        fields = ['image', 'text']

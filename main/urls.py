@@ -9,5 +9,6 @@ urlpatterns = [
     path('logout', LogoutView.as_view(), name='logout'),
     path('profile', views.profile_my, name='profile my'),
     path('profile/add-bio', views.add_profile_bio, name='profile add bio'),
-    path('profile/change-bio/<int:pk>', views.ProfileUpdateView.as_view(), name='profile change bio')
+    path('profile/change-bio/<int:pk>', views.ProfileUpdateView.as_view(), name='profile change bio'),
+    path('post/add', views.add_post, name='post add')
 ]

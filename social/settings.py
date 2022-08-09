@@ -34,6 +34,7 @@ LOGOUT_REDIRECT_URL = '/login'
 MEDIA_DIR = BASE_DIR / "uploads"
 MEDIA_URL = "/files/"
 
+STATIC_URL = 'static/'
 
 # Application definition
 
