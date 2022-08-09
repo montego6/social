@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block content %}
-{% if not user.profile.exists %}<a href="{% url 'profile add bio' %}"><h2>Добавить био</h2></a>
+{% if not user.profile %}<a href="{% url 'profile add bio' %}"><h2>Добавить био</h2></a>
 {% else %}
-<img src="{{ user.profile.avatar.url }}" width="300" class="rounded-circle float-start">
+<img src="{{ user.profile.avatar.url }}" width="200" class="float-start img-thumbnail">
+<p>username: {{ user.username }}</p>
 <p>Город: {{ user.profile.city }}</p>
 <p>День рождения: {{ user.profile.birthday }}</p>
 <p>О себе: {{ user.profile.bio }}</p>
