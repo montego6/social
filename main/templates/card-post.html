@@ -1,7 +1,19 @@
-<div class="card h-100" style="width: 16rem;">
+{% load static %}
+<div class="card h-100" style="width: 18rem;">
   <img src="{{ post.image.url }}" class="card-img-top" alt="...">
   <div class="card-body">
     <p class="card-text">{{ post.text|truncatechars:100 }}</p>
     <a href="{% url 'post detail' post.id %}" class="btn btn-primary">Подробнее</a>
+    </div>
+    <div class="card-footer">
+    {% if user not in post.like.all %}
+    <img src="{% static 'images/balloon-heart.svg' %}" width="32" height="32">
+    <a href="{% url 'post like' post.id %}">Нравится</a>
+    {% else %}
+    <img src="{% static 'images/balloon-heart-fill.svg' %}" width="32" height="32">
+    <a href="{% url 'post like' post.id %}">Не нравится</a>
+    {% endif %}
+    <p class="card-text"><small class="text-muted">Лайков:{{ post.like.all|length }}</small></p>
+
       </div>
 </div>

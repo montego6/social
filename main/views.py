@@ -87,3 +87,12 @@ class PostUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse("profile my")
+
+
+def like_post(request, pk):
+    post = Post.objects.get(id=pk)
+    if request.user in post.like.all():
+        post.like.remove(request.user)
+    else:
+        post.like.add(request.user)
+    return redirect("profile my")
