@@ -33,13 +33,10 @@ def profile_my(request):
 def add_profile_bio(request):
     if request.method == 'POST':
         form = ProfileForm(data=request.POST, files=request.FILES)
-        print(request.POST)
-        print(request.FILES)
         if form.is_valid():
             profile = form.save(commit=False)
-            print(profile)
             profile.user = request.user
-            # profile.save()
+            profile.save()
             return redirect('profile my')
     else:
         form = ProfileForm()
