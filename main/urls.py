@@ -11,5 +11,7 @@ urlpatterns = [
     path('profile/add-bio', views.add_profile_bio, name='profile add bio'),
     path('profile/change-bio/<int:pk>', views.ProfileUpdateView.as_view(), name='profile change bio'),
     path('post/add', views.add_post, name='post add'),
-    path('post/<int:post_id>', views.detail_post, name='post detail')
+    path('post/<int:post_id>', views.detail_post, name='post detail'),
+    path('post/<int:pk>/delete', views.PostDeleteView.as_view(), name='post delete'),
+    path('post/<int:pk>/update', views.PostUpdateView.as_view(), name='post update')
 ]

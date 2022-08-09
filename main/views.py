@@ -1,7 +1,7 @@
 from django.contrib.auth import login, authenticate
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse
 
 from .forms import SignUpForm, ProfileForm, PostForm
@@ -71,3 +71,19 @@ def add_post(request):
 def detail_post(request, post_id):
     post = Post.objects.get(id=post_id)
     return render(request, 'post_detail.html', {'post': post})
+
+
+class PostDeleteView(DeleteView):
+    model = Post
+
+    def get_success_url(self):
+        return reverse("profile my")
+
+
+class PostUpdateView(UpdateView):
+    model = Post
+    fields = ['image', 'text']
+    template_name_suffix = '_update'
+
+    def get_success_url(self):
+        return reverse("profile my")
