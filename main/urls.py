@@ -8,5 +8,6 @@ urlpatterns = [
     path('login', LoginView.as_view(template_name='form.html', extra_context={'title': 'Войти'}), name='login'),
     path('logout', LogoutView.as_view(), name='logout'),
     path('profile', views.profile_my, name='profile my'),
-    path('profile/add-bio', views.add_profile_bio, name='profile add bio')
+    path('profile/add-bio', views.add_profile_bio, name='profile add bio'),
+    path('profile/change-bio/<int:pk>', views.ProfileUpdateView.as_view(), name='profile change bio')
 ]

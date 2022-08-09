@@ -1,8 +1,11 @@
 from django.contrib.auth import login, authenticate
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.views.generic.edit import UpdateView
+from django.urls import reverse
 
 from .forms import SignUpForm, ProfileForm
+from .models import Profile
 
 # Create your views here.
 
@@ -41,3 +44,12 @@ def add_profile_bio(request):
     else:
         form = ProfileForm()
     return render(request, 'form.html', {'form': form, 'title': 'Добавить био'})
+
+
+class ProfileUpdateView(UpdateView):
+    model = Profile
+    fields = ['avatar', 'city', 'birthday', 'bio']
+    template_name_suffix = '_update'
+
+    def get_success_url(self):
+        return reverse("profile my")
