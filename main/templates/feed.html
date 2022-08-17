@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}
+Ваша лента
+{% endblock %}
+
+{% block content %}
+<h2>Ваша лента</h2>
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+{% for post in posts %}
+         <div class="col">
+    {% include "card-post.html" %}
+        </div>
+    {% endfor %}
+     </div>
+</div>
+{% endblock %}

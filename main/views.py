@@ -96,7 +96,7 @@ def like_post(request, pk):
         post.like.remove(request.user)
     else:
         post.like.add(request.user)
-    return redirect("profile my")
+    return redirect(request.META.get('HTTP_REFERER', 'profile'))
 
 
 def search(request):
@@ -119,5 +119,10 @@ def profile(request, profile_id):
     user_profile = Profile.objects.get(id=profile_id)
     posts = Post.objects.filter(owner=user_profile.user)
     return render(request, 'profile.html', {'profile': user_profile, 'posts': posts})
+
+
+def feed(request):
+    posts = Post.objects.filter(owner__profile__followers=request.user.profile)
+    return render(request, 'feed.html', {'posts': posts})
 
 
