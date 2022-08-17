@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from .forms import SignUpForm, ProfileForm, PostForm
 from .models import Profile, Post
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -96,3 +97,10 @@ def like_post(request, pk):
     else:
         post.like.add(request.user)
     return redirect("profile my")
+
+
+def search(request):
+    search_query = request.POST["search_input"]
+    users = User.objects.filter(username__icontains=search_query)
+    posts = Post.objects.filter(text__icontains=search_query)
+    return render(request, 'search.html', {'users':users, 'posts': posts})

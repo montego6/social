@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Результаты поиска
+{% endblock %}
+
+{% block content %}
+<h2>Найденные пользователи: {{ users.count }}</h2>
+<table class="table">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Username</th>
+      <th scope="col">Количество постов</th>
+      </tr>
+  </thead>
+<tbody>
+{% for user in users %}
+<tr>
+    <th scope="row">{{ forloop.counter }}</th>
+    <td>{{ user.username }}</td>
+    <td>{{ user.posts.count }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<h2>Найденные посты: {{ posts.count }}</h2>
+{% endblock %}
