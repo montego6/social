@@ -20,7 +20,7 @@
 {% for user in users %}
 <tr>
     <th scope="row">{{ forloop.counter }}</th>
-    <td>{{ user.username }}</td>
+    <td><a href="{% url 'profile' user.profile.id %}">{{ user.username }}</a></td>
     <td>{{ user.posts.count }}</td>
 </tr>
 {% endfor %}

@@ -10,10 +10,12 @@ urlpatterns = [
     path('profile', views.profile_my, name='profile my'),
     path('profile/add-bio', views.add_profile_bio, name='profile add bio'),
     path('profile/change-bio/<int:pk>', views.ProfileUpdateView.as_view(), name='profile change bio'),
+    path('profile/<int:profile_id>', views.profile, name='profile'),
     path('post/add', views.add_post, name='post add'),
     path('post/<int:post_id>', views.detail_post, name='post detail'),
     path('post/<int:pk>/delete', views.PostDeleteView.as_view(), name='post delete'),
     path('post/<int:pk>/update', views.PostUpdateView.as_view(), name='post update'),
     path('post/<int:pk>/like', views.like_post, name='post like'),
-    path('search', views.search, name='search')
+    path('search', views.search, name='search'),
+    path('follow/<int:profile_id>', views.follow, name='follow')
 ]

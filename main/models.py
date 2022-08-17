@@ -10,6 +10,7 @@ class Profile(models.Model):
     birthday = models.DateField(null=True)
     bio = models.TextField(null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    following = models.ManyToManyField('self', related_name='followers', symmetrical=False)
 
 
 class Post(models.Model):

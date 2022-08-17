@@ -31,7 +31,7 @@ def signup(request):
 
 
 def profile_my(request):
-    return render(request, 'profile.html')
+    return render(request, 'profile_my.html')
 
 
 def add_profile_bio(request):
@@ -104,3 +104,17 @@ def search(request):
     users = User.objects.filter(username__icontains=search_query)
     posts = Post.objects.filter(text__icontains=search_query)
     return render(request, 'search.html', {'users':users, 'posts': posts})
+
+
+def follow(request, profile_id):
+    following_profile = Profile.objects.get(id=profile_id)
+    request.user.profile.following.add(following_profile)
+    return redirect("profile", profile_id=profile_id)
+
+
+def profile(request, profile_id):
+    user_profile = Profile.objects.get(id=profile_id)
+    posts = Post.objects.filter(owner=user_profile.user)
+    return render(request, 'profile.html', {'profile': user_profile, 'posts': posts})
+
+

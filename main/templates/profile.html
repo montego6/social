@@ -1,23 +1,21 @@
 {% extends "base.html" %}
 
 {% block title %}
-Профиль
+Профиль пользователя {{ profile.user.username }}
 {% endblock %}
 
 {% block content %}
-{% if not user.profile %}<a href="{% url 'profile add bio' %}"><h2>Добавить био</h2></a>
-{% else %}
 <div class="container">
     <div class="row">
         <div class="col">
-<img src="{{ user.profile.avatar.url }}" width="250" class="float-start img-thumbnail"></div>
-<div class="col"><p>username: {{ user.username }}</p>
-<p>Город: {{ user.profile.city }}</p>
-<p>День рождения: {{ user.profile.birthday }}</p>
-<p>О себе: {{ user.profile.bio }}</p>
-    <a href="{% url 'profile change bio' user.profile.id %}" class="btn btn-primary">Изменить информацию</a>
-    <br><br>
-    <a href="{% url 'post add' %}" class="btn btn-primary">Добавить пост</a>
+<img src="{{ profile.avatar.url }}" width="250" class="float-start img-thumbnail"></div>
+<div class="col"><p>username: {{ profile.user.username }}</p>
+<p>Город: {{ profile.city }}</p>
+<p>День рождения: {{ profile.birthday }}</p>
+<p>О себе: {{ profile.bio }}</p>
+    <p>Фолловеров: {{ profile.followers.count }}</p>
+    <p>Фолловит: {{ profile.following.count }}</p>
+    <a href="{% url 'follow' profile.id %}" class="btn btn-primary">Подписаться</a>
     </div>
         <div class="col"></div><div class="col"></div><div class="col"></div>
         </div>
@@ -25,12 +23,11 @@
 <br>
 <div class="container">
     <div class="row row-cols-1 row-cols-md-4 g-4">
-{% for post in user.posts.all %}
+{% for post in posts %}
          <div class="col">
     {% include "card-post.html" %}
         </div>
     {% endfor %}
      </div>
 </div>
-{% endif %}
 {% endblock %}

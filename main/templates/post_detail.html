@@ -7,6 +7,8 @@
 {% block content %}
 <img src="{{ post.image.url }}" width="300">
 <p>{{ post.text }}</p>
+{% if user == post.owner %}
 <a href="{% url 'post update' post.id %}" class="btn btn-success">Изменить</a>
 <a href="{% url 'post delete' post.id %}" class="btn btn-danger">Удалить</a>
+{% endif %}
 {% endblock %}
