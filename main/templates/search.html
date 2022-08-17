@@ -7,6 +7,7 @@
 
 {% block content %}
 <h2>Найденные пользователи: {{ users.count }}</h2>
+{% if users %}
 <table class="table">
     <thead>
     <tr>
@@ -25,5 +26,15 @@
 {% endfor %}
 </tbody>
 </table>
+{% endif %}
 <h2>Найденные посты: {{ posts.count }}</h2>
+<div class="container">
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+{% for post in posts %}
+         <div class="col">
+    {% include "card-post.html" %}
+        </div>
+    {% endfor %}
+     </div>
+</div>
 {% endblock %}
