@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
 Профиль пользователя {{ profile.user.username }}
@@ -15,7 +16,14 @@
 <p>О себе: {{ profile.bio }}</p>
     <p>Фолловеров: {{ profile.followers.count }}</p>
     <p>Фолловит: {{ profile.following.count }}</p>
-    <a href="{% url 'follow' profile.id %}" class="btn btn-primary">Подписаться</a>
+    {% if profile in user.profile.following.all %}
+    <p>Вы подписаны<img src="{% static 'images/check2.svg' %}" width="32" height="32"></p>
+    {% endif %}
+    <a href="{% url 'follow' profile.id %}" class="btn btn-primary">
+        {% if profile not in user.profile.following.all %}Подписаться
+        {% else %}Отписаться
+        {% endif %}
+    </a>
     </div>
         <div class="col"></div><div class="col"></div><div class="col"></div>
         </div>

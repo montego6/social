@@ -108,7 +108,10 @@ def search(request):
 
 def follow(request, profile_id):
     following_profile = Profile.objects.get(id=profile_id)
-    request.user.profile.following.add(following_profile)
+    if following_profile not in request.user.profile.following.all():
+        request.user.profile.following.add(following_profile)
+    else:
+        request.user.profile.following.remove(following_profile)
     return redirect("profile", profile_id=profile_id)
 
 
