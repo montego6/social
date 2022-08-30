@@ -14,8 +14,8 @@
 <p>Город: {{ profile.city }}</p>
 <p>День рождения: {{ profile.birthday }}</p>
 <p>О себе: {{ profile.bio }}</p>
-    <p>Фолловеров: {{ profile.followers.count }}</p>
-    <p>Фолловит: {{ profile.following.count }}</p>
+    <p>Фолловеров: <a href="{% url 'followers' profile.id %}">{{ profile.followers.count }}</a></p>
+    <p>Фолловит: <a href="{% url 'following' profile.id %}">{{ profile.following.count }}</a></p>
     {% if profile in user.profile.following.all %}
     <p>Вы подписаны<img src="{% static 'images/check2.svg' %}" width="32" height="32"></p>
     {% endif %}

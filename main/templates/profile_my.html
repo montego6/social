@@ -15,8 +15,8 @@
 <p>Город: {{ user.profile.city }}</p>
 <p>День рождения: {{ user.profile.birthday }}</p>
 <p>О себе: {{ user.profile.bio }}</p>
-    <p>Фолловеров: {{ user.profile.followers.count }}</p>
-    <p>Фолловит: {{ user.profile.following.count }}</p>
+    <p>Фолловеров: <a href="{% url 'followers' user.profile.id %}">{{ user.profile.followers.count }}</a></p>
+    <p>Фолловит: <a href="{% url 'following' user.profile.id %}">{{ user.profile.following.count }}</a></p>
     <a href="{% url 'profile change bio' user.profile.id %}" class="btn btn-primary">Изменить информацию</a>
     <br><br>
     <a href="{% url 'post add' %}" class="btn btn-primary">Добавить пост</a>

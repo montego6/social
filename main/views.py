@@ -103,7 +103,7 @@ def search(request):
     search_query = request.POST["search_input"]
     users = User.objects.filter(username__icontains=search_query)
     posts = Post.objects.filter(text__icontains=search_query)
-    return render(request, 'search.html', {'users':users, 'posts': posts})
+    return render(request, 'search.html', {'users': users, 'posts': posts})
 
 
 def follow(request, profile_id):
@@ -126,3 +126,13 @@ def feed(request):
     return render(request, 'feed.html', {'posts': posts})
 
 
+def followers(request, profile_id):
+    user_profile = Profile.objects.get(id=profile_id)
+    user_followers = user_profile.followers.all()
+    return render(request, 'followers.html', {'profile': user_profile, 'followers': user_followers})
+
+
+def following(request, profile_id):
+    user_profile = Profile.objects.get(id=profile_id)
+    user_following = user_profile.following.all()
+    return render(request, 'following.html', {'profile': user_profile, 'following': user_following})

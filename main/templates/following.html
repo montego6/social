@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Пользователь {{ profile.user.username }} фолловит следующие профили
+{% endblock %}
+
+{% block content %}
+<h2>Пользователь {{ profile.user.username }} фолловит следующие профили</h2>
+{% if following %}
+<table class="table">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Username</th>
+      <th scope="col">Количество постов</th>
+      </tr>
+  </thead>
+<tbody>
+{% for profile in following %}
+<tr>
+    <th scope="row">{{ forloop.counter }}</th>
+    <td><a href="{% url 'profile' profile.id %}">{{ profile.user.username }}</a></td>
+    <td>{{ profile.user.posts.count }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endblock %}

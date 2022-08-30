@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Фолловеры пользователя {{ profile.user.username }}
+{% endblock %}
+
+{% block content %}
+<h2>Фолловеры пользователя {{ profile.user.username }}</h2>
+{% if followers %}
+<table class="table">
+    <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Username</th>
+      <th scope="col">Количество постов</th>
+      </tr>
+  </thead>
+<tbody>
+{% for profile in followers %}
+<tr>
+    <th scope="row">{{ forloop.counter }}</th>
+    <td><a href="{% url 'profile' profile.id %}">{{ profile.user.username }}</a></td>
+    <td>{{ profile.user.posts.count }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endif %}
+{% endblock %}
