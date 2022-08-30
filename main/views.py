@@ -4,7 +4,7 @@ from django.shortcuts import render
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse
 
-from .forms import SignUpForm, ProfileForm, PostForm
+from .forms import SignUpForm, ProfileForm, PostForm, CommentForm
 from .models import Profile, Post
 from django.contrib.auth.models import User
 
@@ -71,7 +71,16 @@ def add_post(request):
 
 def detail_post(request, post_id):
     post = Post.objects.get(id=post_id)
-    return render(request, 'post_detail.html', {'post': post})
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.owner = request.user
+            comment.save()
+    else:
+        form = CommentForm()
+    return render(request, 'post_detail.html', {'post': post, 'form': form})
 
 
 class PostDeleteView(DeleteView):

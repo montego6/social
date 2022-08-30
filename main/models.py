@@ -18,3 +18,9 @@ class Post(models.Model):
     text = models.TextField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like = models.ManyToManyField(User, related_name='likes')
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    text = models.TextField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
