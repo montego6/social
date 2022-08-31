@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}
+Ваши уведомления
+{% endblock %}
+
+{% block content %}
+<h2>Уведомления</h2>
+{% for notification in notifications %}
+
+{% if notification.from_user == user %}
+
+{% if notification.action == 'like' %}
+<p>Вы поставили лайк <a href="{% url 'post detail' notification.post.id %}">посту</a> пользователя <a href="{% url 'profile' notification.to_user.profile.id %}">{{ notification.to_user.username }}</a></p>
+{% endif %}
+
+{% if notification.action == 'dislike' %}
+<p>Вы удалили лайк <a href="{% url 'post detail' notification.post.id %}">посту</a> пользователя <a href="{% url 'profile' notification.to_user.profile.id %}">{{ notification.to_user.username }}</a></p>
+{% endif %}
+
+{% if notification.action == 'follow' %}
+<p>Вы подписались на пользователя <a href="{% url 'profile' notification.to_user.profile.id %}">{{ notification.to_user.username }}</a></p>
+{% endif %}
+
+{% if notification.action == 'disfollow' %}
+<p>Вы отписались от пользователя <a href="{% url 'profile' notification.to_user.profile.id %}">{{ notification.to_user.username }}</a></p>
+{% endif %}
+
+{% if notification.action == 'comment' %}
+<p>Вы оставили комментарий "{{ notification.comment.text|truncatechars:30 }}"
+    <a href="{% url 'post detail' notification.comment.post.id %}">посту</a> пользователя <a href="{% url 'profile' notification.to_user.profile.id %}">{{ notification.to_user.username }}</a></p>
+{% endif %}
+
+{% else %}
+
+{% if notification.action == 'like' %}
+<p>Пользователь <a href="{% url 'profile' notification.from_user.profile.id %}">{{ notification.from_user.username }}</a> поставил лайк <a href="{% url 'post detail' notification.post.id %}">вашему посту</a></p>
+{% endif %}
+
+{% if notification.action == 'dislike' %}
+<p>Пользователь <a href="{% url 'profile' notification.from_user.profile.id %}">{{ notification.from_user.username }}</a> удалил лайк <a href="{% url 'post detail' notification.post.id %}">вашему посту</a></p>
+{% endif %}
+
+{% if notification.action == 'follow' %}
+<p>На вас подписался пользователь <a href="{% url 'profile' notification.from_user.profile.id %}">{{ notification.from_user.username }}</a></p>
+{% endif %}
+
+{% if notification.action == 'disfollow' %}
+<p>От вас отписался пользователь <a href="{% url 'profile' notification.from_user.profile.id %}">{{ notification.from_user.username }}</a></p>
+{% endif %}
+
+{% if notification.action == 'comment' %}
+<p>Пользователь <a href="{% url 'profile' notification.from_user.profile.id %}">{{ notification.from_user.username }}</a>
+    оставил комментарий "{{ notification.comment.text|truncatechars:30 }}"
+    <a href="{% url 'post detail' notification.comment.post.id %}"> вашему посту</a></p>
+{% endif %}
+
+{% endif %}
+{% endfor %}
+{% endblock %}

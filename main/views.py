@@ -3,9 +3,10 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse
+from django.db.models import Q
 
 from .forms import SignUpForm, ProfileForm, PostForm, CommentForm
-from .models import Profile, Post
+from .models import Profile, Post, Notification
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -78,6 +79,12 @@ def detail_post(request, post_id):
             comment.post = post
             comment.owner = request.user
             comment.save()
+            Notification.objects.create(
+                from_user=request.user,
+                to_user=post.owner,
+                action='comment',
+                comment=comment
+            )
     else:
         form = CommentForm()
     return render(request, 'post_detail.html', {'post': post, 'form': form})
@@ -103,8 +110,20 @@ def like_post(request, pk):
     post = Post.objects.get(id=pk)
     if request.user in post.like.all():
         post.like.remove(request.user)
+        Notification.objects.create(
+            from_user=request.user,
+            to_user=post.owner,
+            action='dislike',
+            post=post
+        )
     else:
         post.like.add(request.user)
+        Notification.objects.create(
+            from_user=request.user,
+            to_user=post.owner,
+            action='like',
+            post=post
+        )
     return redirect(request.META.get('HTTP_REFERER', 'profile'))
 
 
@@ -119,8 +138,18 @@ def follow(request, profile_id):
     following_profile = Profile.objects.get(id=profile_id)
     if following_profile not in request.user.profile.following.all():
         request.user.profile.following.add(following_profile)
+        Notification.objects.create(
+            from_user=request.user,
+            to_user=following_profile.user,
+            action='follow'
+        )
     else:
         request.user.profile.following.remove(following_profile)
+        Notification.objects.create(
+            from_user=request.user,
+            to_user=following_profile.user,
+            action='disfollow'
+        )
     return redirect("profile", profile_id=profile_id)
 
 
@@ -145,3 +174,8 @@ def following(request, profile_id):
     user_profile = Profile.objects.get(id=profile_id)
     user_following = user_profile.following.all()
     return render(request, 'following.html', {'profile': user_profile, 'following': user_following})
+
+
+def notifications_view(request):
+    notifications = Notification.objects.filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:10]
+    return render(request, 'notifications.html', {'notifications': notifications})
