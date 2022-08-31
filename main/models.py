@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
+import re
 
 # Create your models here.
 
@@ -18,6 +20,14 @@ class Post(models.Model):
     text = models.TextField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     like = models.ManyToManyField(User, related_name='likes')
+
+    def save(self, *args, **kwargs):
+        hashtags = re.findall(r'#(\w+)', self.text)
+        for hashtag in hashtags:
+            full_hashtag = '#' + hashtag
+            link = reverse('hashtag', kwargs={'hashtag': hashtag})
+            self.text = self.text.replace(full_hashtag, f'<a href="{link}">{full_hashtag}</a>')
+        super().save(*args, **kwargs)
 
 
 class Comment(models.Model):

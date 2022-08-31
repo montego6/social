@@ -52,7 +52,7 @@
 {% if notification.action == 'comment' %}
 <p>Пользователь <a href="{% url 'profile' notification.from_user.profile.id %}">{{ notification.from_user.username }}</a>
     оставил комментарий "{{ notification.comment.text|truncatechars:30 }}"
-    <a href="{% url 'post detail' notification.comment.post.id %}"> вашему посту</a></p>
+    <a href="{% url 'post detail' notification.comment.post.id %}">вашему посту</a></p>
 {% endif %}
 
 {% endif %}

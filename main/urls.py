@@ -21,5 +21,6 @@ urlpatterns = [
     path('feed', views.feed, name='feed'),
     path('followers/<int:profile_id>', views.followers, name='followers'),
     path('following/<int:profile_id>', views.following, name='following'),
-    path('notifications', views.notifications_view, name='notifications')
+    path('notifications', views.notifications_view, name='notifications'),
+    path('search/hashtag/<str:hashtag>', views.hashtag_search, name='hashtag')
 ]

@@ -179,3 +179,8 @@ def following(request, profile_id):
 def notifications_view(request):
     notifications = Notification.objects.filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:10]
     return render(request, 'notifications.html', {'notifications': notifications})
+
+
+def hashtag_search(request, hashtag):
+    posts = Post.objects.filter(text__icontains='#' + hashtag)
+    return render(request, 'search.html', {'users': None, 'posts': posts})
