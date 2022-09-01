@@ -61,4 +61,5 @@ class Message(models.Model):
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_to')
     text = models.TextField(null=True, blank=True)
     image = models.ImageField(upload_to='media/chats', null=True, blank=True)
+    is_read = models.BooleanField(default=False)
 

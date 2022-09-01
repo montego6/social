@@ -205,7 +205,12 @@ def send_message(request, receiver_id):
 
 def message_chat(request, chat_id):
     chat = Chat.objects.get(id=chat_id)
-    messages = chat.messages.all()
+    messages = chat.messages.order_by("-id")
+    unread_messages = chat.messages.filter(is_read=False)
+    if unread_messages.exists():
+        to_user = unread_messages[0].to_user
+        if to_user == request.user:
+            unread_messages.update(is_read=True)
     if request.method == 'POST':
         form = MessageForm(data=request.POST, files=request.FILES)
         if form.is_valid():

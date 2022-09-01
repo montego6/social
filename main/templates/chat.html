@@ -7,12 +7,17 @@
 
 {% block content %}
 <h2>Чат</h2>
-<div class="container">
+<div class="container2">
 {% for message in messages %}
   <div class="row justify-content-center">
-    {% if user == message.from_user %}
+    {% if user != message.from_user %}
     <div class="col">
-<p>{{ message.text }}</p>
+        {% if message.text %}
+<p>{{ message.from_user.username }}: {{ message.text }}</p>
+        {% endif %}
+        {% if message.image %}
+        <img src="{{ message.image.url }}" width="100">
+        {% endif %}
     </div>
     <div class="col">
     </div>
@@ -20,7 +25,24 @@
         <div class="col">
     </div>
        <div class="col">
-<p>{{ message.text }}</p>
+           {% if message.text %}
+           {% if message.is_read %}
+<p>Вы: {{ message.text }}</p>
+           {% else %}
+           <div class="alert alert-info" role="alert">
+  Вы: {{ message.text }}
+</div>
+           {% endif %}
+           {% endif %}
+           {% if message.image %}
+           {% if message.is_read %}
+        <img src="{{ message.image.url }}" width="100">
+           {% else %}
+                   <div class="alert alert-info" role="alert">
+  <img src="{{ message.image.url }}" width="100">
+</div>
+           {% endif %}
+        {% endif %}
     </div>
     {% endif %}
   </div>
