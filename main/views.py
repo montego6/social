@@ -205,6 +205,7 @@ def send_message(request, receiver_id):
 
 def message_chat(request, chat_id):
     chat = Chat.objects.get(id=chat_id)
+    recipient = chat.user2 if request.user == chat.user1 else chat.user1
     messages = chat.messages.order_by("-id")
     unread_messages = chat.messages.filter(is_read=False)
     if unread_messages.exists():
@@ -222,4 +223,4 @@ def message_chat(request, chat_id):
             return redirect('chat', chat_id=chat.id)
     else:
         form = MessageForm()
-    return render(request, 'chat.html', {'messages': messages, 'form': form})
+    return render(request, 'chat.html', {'messages': messages, 'form': form, 'recipient': recipient})
