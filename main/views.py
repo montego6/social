@@ -194,13 +194,12 @@ class CommentDeleteView(DeleteView):
         return reverse("post detail", kwargs={"post_id": post_id})
 
 
-def send_message(request, user1_id, user2_id):
-    user1 = User.objects.get(id=user1_id)
-    user2 = User.objects.get(id=user2_id)
-    if user1 == request.user:
-        chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
-    else:
-        chat, created = Chat.objects.get_or_create(user1=user2, user2=user1)
+def send_message(request, receiver_id):
+    user1 = request.user
+    user2 = User.objects.get(id=receiver_id)
+    chat = Chat.objects.get(Q(user1=user1, user2=user2) | Q(user1=user2, user2=user1))
+    if not chat:
+        chat = Chat.objects.create(user1=user1, user2=user2)
     return redirect('chat', chat_id=chat.id)
 
 

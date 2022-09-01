@@ -24,6 +24,6 @@ urlpatterns = [
     path('notifications', views.notifications_view, name='notifications'),
     path('search/hashtag/<str:hashtag>', views.hashtag_search, name='hashtag'),
     path('comment/<int:pk>/delete', views.CommentDeleteView.as_view(), name='comment delete'),
-    path('message/<int:user1_id>/<int:user2_id>', views.send_message, name='message'),
+    path('message/<int:receiver_id>', views.send_message, name='message'),
     path('chat/<int:chat_id>', views.message_chat, name='chat')
 ]
