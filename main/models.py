@@ -29,17 +29,36 @@ class Post(models.Model):
             self.text = self.text.replace(full_hashtag, f'<a href="{link}">{full_hashtag}</a>')
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.text
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
 
+    def __str__(self):
+        return self.text
+
 
 class Notification(models.Model):
     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications_from')
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications_to')
     action = models.CharField(max_length=20)
-    post = models.ForeignKey(Post, on_delete=models.SET_NULL, related_name='notifications', null=True)
-    comment = models.ForeignKey(Comment, on_delete=models.SET_NULL, related_name='notifications', null=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications', null=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='notifications', null=True)
+
+
+class Chat(models.Model):
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats_sender')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats_receiver')
+
+
+class Message(models.Model):
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
+    from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_from')
+    to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_to')
+    text = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='media/chats', null=True, blank=True)
 

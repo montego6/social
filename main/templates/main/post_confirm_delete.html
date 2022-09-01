@@ -10,7 +10,7 @@
   <form method="post">
     {% csrf_token %}
       <div class="alert alert-danger" role="alert">
-<p>Вы уверены, что хотите удалить пост "{{ object }}?"</p>
+<p>Вы уверены, что хотите удалить пост "{{ object }}"?</p>
 </div>
     {{ form|crispy }}
     <button type="submit" class="btn btn-danger">Удалить</button>

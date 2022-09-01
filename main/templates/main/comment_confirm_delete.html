@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Удалить комментарий
+{% endblock %}
+
+{% block content %}
+<h2>Удалить комментарий</h2>
+  <form method="post">
+    {% csrf_token %}
+      <div class="alert alert-danger" role="alert">
+<p>Вы уверены, что хотите удалить комментарий "{{ object }}"?</p>
+</div>
+    {{ form|crispy }}
+    <button type="submit" class="btn btn-danger">Удалить</button>
+  </form>
+{% endblock %}

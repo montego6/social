@@ -9,11 +9,14 @@
 <img src="{{ post.image.url }}" width="300">
 {% if user == post.owner %}
 <a href="{% url 'post update' post.id %}" class="btn btn-success">Изменить</a>
+{% endif %}
+{% if user == post.owner or user.is_staff %}
 <a href="{% url 'post delete' post.id %}" class="btn btn-danger">Удалить</a>
 {% endif %}
 <p>{{ post.owner.username }}: {{ post.text|safe }}</p>
 {% for comment in post.comments.all %}
-<p>{{ comment.owner.username }}: {{ comment.text }}</p>
+<p>{{ comment.owner.username }}: {{ comment.text }}  {% if user.is_staff or user == comment.owner %}
+  <a href="{% url 'comment delete' comment.id %}">Удалить комментарий</a>{% endif %}</p>
 {% endfor %}
   <form method="post">
     {% csrf_token %}

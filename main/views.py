@@ -5,8 +5,8 @@ from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse
 from django.db.models import Q
 
-from .forms import SignUpForm, ProfileForm, PostForm, CommentForm
-from .models import Profile, Post, Notification
+from .forms import SignUpForm, ProfileForm, PostForm, CommentForm, MessageForm
+from .models import Profile, Post, Notification, Comment, Chat, Message
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -177,10 +177,45 @@ def following(request, profile_id):
 
 
 def notifications_view(request):
-    notifications = Notification.objects.filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:10]
+    notifications = Notification.objects.filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:20]
     return render(request, 'notifications.html', {'notifications': notifications})
 
 
 def hashtag_search(request, hashtag):
     posts = Post.objects.filter(text__icontains='#' + hashtag)
     return render(request, 'search.html', {'users': None, 'posts': posts})
+
+
+class CommentDeleteView(DeleteView):
+    model = Comment
+
+    def get_success_url(self):
+        post_id = self.object.post.id
+        return reverse("post detail", kwargs={"post_id": post_id})
+
+
+def send_message(request, user1_id, user2_id):
+    user1 = User.objects.get(id=user1_id)
+    user2 = User.objects.get(id=user2_id)
+    if user1 == request.user:
+        chat, created = Chat.objects.get_or_create(user1=user1, user2=user2)
+    else:
+        chat, created = Chat.objects.get_or_create(user1=user2, user2=user1)
+    return redirect('chat', chat_id=chat.id)
+
+
+def message_chat(request, chat_id):
+    chat = Chat.objects.get(id=chat_id)
+    messages = chat.messages.all()
+    if request.method == 'POST':
+        form = MessageForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.chat = chat
+            message.from_user = request.user
+            message.to_user = chat.user2 if chat.user1 == request.user else chat.user1
+            message.save()
+            return redirect('chat', chat_id=chat.id)
+    else:
+        form = MessageForm()
+    return render(request, 'chat.html', {'messages': messages, 'form': form})

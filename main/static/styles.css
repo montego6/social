@@ -3,3 +3,8 @@
     height: 15vw;
     object-fit: cover;
 }
+
+.container {
+        max-width: 600px;
+        }
+

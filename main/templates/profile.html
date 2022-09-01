@@ -24,6 +24,7 @@
         {% else %}Отписаться
         {% endif %}
     </a>
+    <a href="{% url 'message' user.id profile.user.id %}" class="btn btn-primary">Отправить сообщение</a>
     </div>
         <div class="col"></div><div class="col"></div><div class="col"></div>
         </div>
