@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Ваши чаты
+{% endblock %}
+
+{% block content %}
+<h2>Ваши чаты</h2>
+{% for chat in unread_chats %}
+<div class="alert alert-info" role="alert">
+    <p> <a href="{% url 'chat' chat.id %}">Чат с пользователем
+        {% if user == chat.user2 %}{{ chat.user1 }}{% else %}{{ chat.user2 }}{% endif %}</a></p>
+</div>
+{% endfor %}
+{% for chat in read_chats %}
+<p><a href="{% url 'chat' chat.id %}">Чат с пользователем
+    {% if user == chat.user2 %}{{ chat.user1 }}{% else %}{{ chat.user2 }}{% endif %}</a></p>
+{% endfor %}
+{% endblock %}

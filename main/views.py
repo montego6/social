@@ -9,7 +9,16 @@ from .forms import SignUpForm, ProfileForm, PostForm, CommentForm, MessageForm
 from .models import Profile, Post, Notification, Comment, Chat, Message
 from django.contrib.auth.models import User
 
+
 # Create your views here.
+
+
+def unread_messages(request):
+    if not request.user.is_anonymous:
+        unread_messages_count = Message.objects.filter(to_user=request.user, is_read=False).count()
+    else:
+        unread_messages_count = 0
+    return {"unread_messages": unread_messages_count}
 
 
 def home(request):
@@ -197,8 +206,9 @@ class CommentDeleteView(DeleteView):
 def send_message(request, receiver_id):
     user1 = request.user
     user2 = User.objects.get(id=receiver_id)
-    chat = Chat.objects.get(Q(user1=user1, user2=user2) | Q(user1=user2, user2=user1))
-    if not chat:
+    try:
+        chat = Chat.objects.get(Q(user1=user1, user2=user2) | Q(user1=user2, user2=user1))
+    except Chat.DoesNotExist:
         chat = Chat.objects.create(user1=user1, user2=user2)
     return redirect('chat', chat_id=chat.id)
 
@@ -212,6 +222,8 @@ def message_chat(request, chat_id):
         to_user = unread_messages[0].to_user
         if to_user == request.user:
             unread_messages.update(is_read=True)
+            chat.user_unread_messages = None
+            chat.save()
     if request.method == 'POST':
         form = MessageForm(data=request.POST, files=request.FILES)
         if form.is_valid():
@@ -220,7 +232,16 @@ def message_chat(request, chat_id):
             message.from_user = request.user
             message.to_user = chat.user2 if chat.user1 == request.user else chat.user1
             message.save()
+            chat.user_unread_messages = message.to_user
+            chat.save()
             return redirect('chat', chat_id=chat.id)
     else:
         form = MessageForm()
     return render(request, 'chat.html', {'messages': messages, 'form': form, 'recipient': recipient})
+
+
+def all_chats(request):
+    unread_chats = Chat.objects.filter(user_unread_messages=request.user)
+    read_chats = Chat.objects.filter(Q(user1=request.user) | Q(user2=request.user))\
+        .exclude(user_unread_messages=request.user)
+    return render(request, 'chats.html', {'unread_chats': unread_chats, 'read_chats': read_chats})

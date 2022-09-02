@@ -53,6 +53,8 @@ class Notification(models.Model):
 class Chat(models.Model):
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats_sender')
     user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chats_receiver')
+    user_unread_messages = models.ForeignKey(User, on_delete=models.CASCADE,
+                                             related_name='unread_chats', null=True, default=None)
 
 
 class Message(models.Model):
