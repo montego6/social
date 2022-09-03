@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block title %}
 Пост #{{ post.id }}
@@ -13,9 +14,18 @@
 {% if user == post.owner or user.is_staff %}
 <a href="{% url 'post delete' post.id %}" class="btn btn-danger">Удалить</a>
 {% endif %}
-<p>{{ post.owner.username }}: {{ post.text|safe }}</p>
+{% if user not in post.like.all %}
+<img src="{% static 'images/balloon-heart.svg' %}" width="32" height="32">
+<a href="{% url 'post like' post.id %}">Нравится</a>
+{% else %}
+<img src="{% static 'images/balloon-heart-fill.svg' %}" width="32" height="32">
+<a href="{% url 'post like' post.id %}">Не нравится</a>
+{% endif %}
+<p class="card-text"><small class="text-muted">Лайков:{{ post.like.count }}</small></p>
+<p><a href="{% url 'profile' post.owner.profile.id %}">{{ post.owner.username }}</a>: {{ post.text|safe }}</p>
 {% for comment in post.comments.all %}
-<p>{{ comment.owner.username }}: {{ comment.text }}  {% if user.is_staff or user == comment.owner %}
+<p><a href="{% url 'profile' comment.owner.profile.id %}">{{ comment.owner.username }}</a>:
+  {{ comment.text }}  {% if user.is_staff or user == comment.owner %}
   <a href="{% url 'comment delete' comment.id %}">Удалить комментарий</a>{% endif %}</p>
 {% endfor %}
   <form method="post">

@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 # Create your views here.
 
 
-def unread_messages(request):
+def unread_messages_template(request):
     if not request.user.is_anonymous:
         unread_messages_count = Message.objects.filter(to_user=request.user, is_read=False).count()
     else:
@@ -164,6 +164,8 @@ def follow(request, profile_id):
 
 def profile(request, profile_id):
     user_profile = Profile.objects.get(id=profile_id)
+    if user_profile == request.user.profile:
+        return redirect('profile my')
     posts = Post.objects.filter(owner=user_profile.user)
     return render(request, 'profile.html', {'profile': user_profile, 'posts': posts})
 

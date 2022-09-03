@@ -2,7 +2,7 @@
 <div class="card h-100" style="width: 18rem;">
   <img src="{{ post.image.url }}" class="card-img-top" alt="...">
   <div class="card-body">
-    <p class="card-text">{{ post.owner.username }}: {{ post.text|truncatechars:100|safe }}</p>
+    <p class="card-text"><a href="{% url 'profile' post.owner.profile.id %}">{{ post.owner.username }}</a>: {{ post.text|truncatechars:100|safe }}</p>
     <a href="{% url 'post detail' post.id %}" class="btn btn-primary">Подробнее</a>
     </div>
     <div class="card-footer">
