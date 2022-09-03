@@ -1,8 +1,11 @@
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic.edit import UpdateView, DeleteView
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 
 from .forms import SignUpForm, ProfileForm, PostForm, CommentForm, MessageForm
@@ -21,10 +24,6 @@ def unread_messages_template(request):
     return {"unread_messages": unread_messages_count}
 
 
-def home(request):
-    return render(request, "home.html")
-
-
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -40,24 +39,28 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 
+@login_required
 def profile_my(request):
     return render(request, 'profile_my.html')
 
 
+@login_required
 def add_profile_bio(request):
+    if request.user.profile:
+        return redirect('profile my')
     if request.method == 'POST':
         form = ProfileForm(data=request.POST, files=request.FILES)
         if form.is_valid():
-            profile = form.save(commit=False)
-            profile.user = request.user
-            profile.save()
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
             return redirect('profile my')
     else:
         form = ProfileForm()
     return render(request, 'form.html', {'form': form, 'title': 'Добавить био'})
 
 
-class ProfileUpdateView(UpdateView):
+class ProfileUpdateView(UserPassesTestMixin, UpdateView):
     model = Profile
     fields = ['avatar', 'city', 'birthday', 'bio']
     template_name_suffix = '_update'
@@ -65,7 +68,12 @@ class ProfileUpdateView(UpdateView):
     def get_success_url(self):
         return reverse("profile my")
 
+    def test_func(self):
+        user_profile = self.get_object()
+        return self.request.user == user_profile.user
 
+
+@login_required
 def add_post(request):
     if request.method == 'POST':
         form = PostForm(data=request.POST, files=request.FILES)
@@ -79,6 +87,7 @@ def add_post(request):
     return render(request, 'form.html', {'form': form, 'title': 'Добавить пост'})
 
 
+@login_required
 def detail_post(request, post_id):
     post = Post.objects.get(id=post_id)
     if request.method == 'POST':
@@ -99,14 +108,18 @@ def detail_post(request, post_id):
     return render(request, 'post_detail.html', {'post': post, 'form': form})
 
 
-class PostDeleteView(DeleteView):
+class PostDeleteView(UserPassesTestMixin, DeleteView):
     model = Post
 
     def get_success_url(self):
         return reverse("profile my")
 
+    def test_func(self):
+        delete_post = self.get_object()
+        return self.request.user == delete_post.owner
 
-class PostUpdateView(UpdateView):
+
+class PostUpdateView(UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['image', 'text']
     template_name_suffix = '_update'
@@ -114,7 +127,12 @@ class PostUpdateView(UpdateView):
     def get_success_url(self):
         return reverse("profile my")
 
+    def test_func(self):
+        update_post = self.get_object()
+        return self.request.user == update_post.owner
 
+
+@login_required
 def like_post(request, pk):
     post = Post.objects.get(id=pk)
     if request.user in post.like.all():
@@ -136,6 +154,7 @@ def like_post(request, pk):
     return redirect(request.META.get('HTTP_REFERER', 'profile'))
 
 
+@login_required
 def search(request):
     search_query = request.POST["search_input"]
     users = User.objects.filter(username__icontains=search_query)
@@ -143,6 +162,7 @@ def search(request):
     return render(request, 'search.html', {'users': users, 'posts': posts})
 
 
+@login_required
 def follow(request, profile_id):
     following_profile = Profile.objects.get(id=profile_id)
     if following_profile not in request.user.profile.following.all():
@@ -162,6 +182,7 @@ def follow(request, profile_id):
     return redirect("profile", profile_id=profile_id)
 
 
+@login_required
 def profile(request, profile_id):
     user_profile = Profile.objects.get(id=profile_id)
     if user_profile == request.user.profile:
@@ -170,41 +191,51 @@ def profile(request, profile_id):
     return render(request, 'profile.html', {'profile': user_profile, 'posts': posts})
 
 
+@login_required
 def feed(request):
     posts = Post.objects.filter(owner__profile__followers=request.user.profile)
     return render(request, 'feed.html', {'posts': posts})
 
 
+@login_required
 def followers(request, profile_id):
     user_profile = Profile.objects.get(id=profile_id)
     user_followers = user_profile.followers.all()
     return render(request, 'followers.html', {'profile': user_profile, 'followers': user_followers})
 
 
+@login_required
 def following(request, profile_id):
     user_profile = Profile.objects.get(id=profile_id)
     user_following = user_profile.following.all()
     return render(request, 'following.html', {'profile': user_profile, 'following': user_following})
 
 
+@login_required
 def notifications_view(request):
     notifications = Notification.objects.filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:20]
     return render(request, 'notifications.html', {'notifications': notifications})
 
 
+@login_required
 def hashtag_search(request, hashtag):
     posts = Post.objects.filter(text__icontains='#' + hashtag)
     return render(request, 'search.html', {'users': None, 'posts': posts})
 
 
-class CommentDeleteView(DeleteView):
+class CommentDeleteView(UserPassesTestMixin, DeleteView):
     model = Comment
 
     def get_success_url(self):
         post_id = self.object.post.id
         return reverse("post detail", kwargs={"post_id": post_id})
 
+    def test_func(self):
+        delete_comment = self.get_object()
+        return self.request.user == delete_comment.owner
 
+
+@login_required
 def send_message(request, receiver_id):
     user1 = request.user
     user2 = User.objects.get(id=receiver_id)
@@ -215,8 +246,11 @@ def send_message(request, receiver_id):
     return redirect('chat', chat_id=chat.id)
 
 
+@login_required
 def message_chat(request, chat_id):
     chat = Chat.objects.get(id=chat_id)
+    if request.user != chat.user1 and request.user != chat.user2:
+        return redirect('profile my')
     recipient = chat.user2 if request.user == chat.user1 else chat.user1
     messages = chat.messages.order_by("-id")
     unread_messages = chat.messages.filter(is_read=False)
@@ -242,6 +276,7 @@ def message_chat(request, chat_id):
     return render(request, 'chat.html', {'messages': messages, 'form': form, 'recipient': recipient})
 
 
+@login_required
 def all_chats(request):
     unread_chats = Chat.objects.filter(user_unread_messages=request.user)
     read_chats = Chat.objects.filter(Q(user1=request.user) | Q(user2=request.user))\

@@ -21,15 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ck4&&l#ss&zn+g6tazj%mj6b-x7!8n12b1rlbzb)ip*u6v#2qp'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'profile my'
+LOGOUT_REDIRECT_URL = 'login'
 
 MEDIA_DIR = BASE_DIR / "uploads"
 MEDIA_URL = "/files/"
