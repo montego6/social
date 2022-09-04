@@ -91,7 +91,10 @@ def add_post(request):
 
 @login_required
 def detail_post(request, post_id):
-    post = Post.objects.get(id=post_id)
+    post = Post.objects.prefetch_related('like').select_related('owner').\
+        select_related('owner__profile').get(id=post_id)
+    comments = Comment.objects.select_related('owner').select_related('post').\
+        select_related('owner__profile').filter(post=post)
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -107,7 +110,7 @@ def detail_post(request, post_id):
             )
     else:
         form = CommentForm()
-    return render(request, 'post_detail.html', {'post': post, 'form': form})
+    return render(request, 'post_detail.html', {'post': post, 'form': form, 'comments': comments})
 
 
 class PostDeleteView(UserPassesTestMixin, DeleteView):
@@ -136,7 +139,7 @@ class PostUpdateView(UserPassesTestMixin, UpdateView):
 
 @login_required
 def like_post(request, pk):
-    post = Post.objects.get(id=pk)
+    post = Post.objects.select_related('owner').get(id=pk)
     if request.user in post.like.all():
         post.like.remove(request.user)
         Notification.objects.create(
@@ -153,14 +156,15 @@ def like_post(request, pk):
             action='like',
             post=post
         )
-    return redirect(request.META.get('HTTP_REFERER', 'profile'))
+    return redirect(request.META.get('HTTP_REFERER', 'profile my'))
 
 
 @login_required
 def search(request):
     search_query = request.POST["search_input"]
     users = User.objects.filter(username__icontains=search_query)
-    posts = Post.objects.filter(text__icontains=search_query)
+    posts = Post.objects.prefetch_related('like').select_related('owner').\
+        select_related('owner__profile').filter(text__icontains=search_query)
     return render(request, 'search.html', {'users': users, 'posts': posts})
 
 
@@ -195,8 +199,8 @@ def profile(request, profile_id):
 
 @login_required
 def feed(request):
-    posts = Post.objects.prefetch_related('owner').prefetch_related('owner__profile')\
-        .prefetch_related('like').select_related('owner__profile')\
+    posts = Post.objects.select_related('owner').select_related('owner__profile') \
+        .prefetch_related('like') \
         .filter(owner__profile__followers=request.user.profile)
     return render(request, 'feed.html', {'posts': posts})
 
@@ -217,18 +221,23 @@ def following(request, profile_id):
 
 @login_required
 def notifications_view(request):
-    notifications = Notification.objects.filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:20]
+    notifications = Notification.objects.select_related('from_user').select_related('to_user'). \
+                        select_related('to_user__profile').select_related('from_user__profile').select_related('post'). \
+                        select_related('comment').select_related('comment__post'). \
+                        filter(Q(from_user=request.user) | Q(to_user=request.user)).order_by('-id')[:20]
     return render(request, 'notifications.html', {'notifications': notifications})
 
 
 @login_required
 def hashtag_search(request, hashtag):
-    posts = Post.objects.filter(text__icontains='#' + hashtag)
+    posts = Post.objects.select_related('owner').select_related('owner__profile').\
+        prefetch_related('like').filter(text__icontains='#' + hashtag)
     return render(request, 'search.html', {'users': None, 'posts': posts})
 
 
 class CommentDeleteView(UserPassesTestMixin, DeleteView):
     model = Comment
+    queryset = Comment.objects.select_related('owner').select_related('post')
 
     def get_success_url(self):
         post_id = self.object.post.id
@@ -282,7 +291,9 @@ def message_chat(request, chat_id):
 
 @login_required
 def all_chats(request):
-    unread_chats = Chat.objects.filter(user_unread_messages=request.user)
-    read_chats = Chat.objects.filter(Q(user1=request.user) | Q(user2=request.user))\
+    unread_chats = Chat.objects.select_related('user1').select_related('user2').\
+        filter(user_unread_messages=request.user)
+    read_chats = Chat.objects.select_related('user1').select_related('user2').\
+        filter(Q(user1=request.user) | Q(user2=request.user)) \
         .exclude(user_unread_messages=request.user)
     return render(request, 'chats.html', {'unread_chats': unread_chats, 'read_chats': read_chats})

@@ -23,7 +23,7 @@
 {% endif %}
 <p class="card-text"><small class="text-muted">Лайков:{{ post.like.count }}</small></p>
 <p><a href="{% url 'profile' post.owner.profile.id %}">{{ post.owner.username }}</a>: {{ post.text|safe }}</p>
-{% for comment in post.comments.all %}
+{% for comment in comments %}
 <p><a href="{% url 'profile' comment.owner.profile.id %}">{{ comment.owner.username }}</a>:
   {{ comment.text }}  {% if user.is_staff or user == comment.owner %}
   <a href="{% url 'comment delete' comment.id %}">Удалить комментарий</a>{% endif %}</p>
