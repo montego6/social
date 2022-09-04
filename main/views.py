@@ -195,7 +195,9 @@ def profile(request, profile_id):
 
 @login_required
 def feed(request):
-    posts = Post.objects.filter(owner__profile__followers=request.user.profile)
+    posts = Post.objects.prefetch_related('owner').prefetch_related('owner__profile')\
+        .prefetch_related('like').select_related('owner__profile')\
+        .filter(owner__profile__followers=request.user.profile)
     return render(request, 'feed.html', {'posts': posts})
 
 
