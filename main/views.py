@@ -1,12 +1,13 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.http import HttpResponseRedirect, HttpResponseForbidden
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.views.generic.edit import UpdateView, DeleteView
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.db.models import Q
+from django.contrib.auth.models import User
 
 from .forms import SignUpForm, ProfileForm, PostForm, CommentForm, MessageForm
 from .models import Profile, Post, Notification, Comment, Chat, Message
@@ -41,7 +42,8 @@ def signup(request):
 
 @login_required
 def profile_my(request):
-    return render(request, 'profile_my.html')
+    user = User.objects.select_related('profile').prefetch_related('posts__like').get(id=request.user.id)
+    return render(request, 'profile_my.html', {'user': user})
 
 
 @login_required
@@ -250,7 +252,7 @@ def send_message(request, receiver_id):
 def message_chat(request, chat_id):
     chat = Chat.objects.get(id=chat_id)
     if request.user != chat.user1 and request.user != chat.user2:
-        return redirect('profile my')
+        return HttpResponseForbidden()
     recipient = chat.user2 if request.user == chat.user1 else chat.user1
     messages = chat.messages.order_by("-id")
     unread_messages = chat.messages.filter(is_read=False)

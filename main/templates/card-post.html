@@ -13,7 +13,7 @@
     <img src="{% static 'images/balloon-heart-fill.svg' %}" width="32" height="32">
     <a href="{% url 'post like' post.id %}">Не нравится</a>
     {% endif %}
-    <p class="card-text"><small class="text-muted">Лайков:{{ post.like.all|length }}</small></p>
+    <p class="card-text"><small class="text-muted">Лайков:{{ post.like.count }}</small></p>
 
       </div>
 </div>
