@@ -3,11 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic.edit import UpdateView, DeleteView
 from django.urls import reverse
 from django.db.models import Q
-from django.contrib.auth.models import User
 
 from .forms import SignUpForm, ProfileForm, PostForm, CommentForm, MessageForm
 from .models import Profile, Post, Notification, Comment, Chat, Message
@@ -66,6 +65,7 @@ class ProfileUpdateView(UserPassesTestMixin, UpdateView):
     model = Profile
     fields = ['avatar', 'city', 'birthday', 'bio']
     template_name_suffix = '_update'
+    queryset = Profile.objects.select_related('user')
 
     def get_success_url(self):
         return reverse("profile my")
@@ -91,9 +91,9 @@ def add_post(request):
 
 @login_required
 def detail_post(request, post_id):
-    post = Post.objects.prefetch_related('like').select_related('owner').\
-        select_related('owner__profile').get(id=post_id)
-    comments = Comment.objects.select_related('owner').select_related('post').\
+    post = get_object_or_404(Post.objects.prefetch_related('like').select_related('owner'). \
+                             select_related('owner__profile'), id=post_id)
+    comments = Comment.objects.select_related('owner').select_related('post'). \
         select_related('owner__profile').filter(post=post)
     if request.method == 'POST':
         form = CommentForm(request.POST)
@@ -115,6 +115,7 @@ def detail_post(request, post_id):
 
 class PostDeleteView(UserPassesTestMixin, DeleteView):
     model = Post
+    queryset = Post.objects.select_related('owner')
 
     def get_success_url(self):
         return reverse("profile my")
@@ -128,6 +129,7 @@ class PostUpdateView(UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['image', 'text']
     template_name_suffix = '_update'
+    queryset = Post.objects.select_related('owner')
 
     def get_success_url(self):
         return reverse("profile my")
@@ -162,8 +164,8 @@ def like_post(request, pk):
 @login_required
 def search(request):
     search_query = request.POST["search_input"]
-    users = User.objects.filter(username__icontains=search_query)
-    posts = Post.objects.prefetch_related('like').select_related('owner').\
+    users = User.objects.select_related('profile').prefetch_related('posts').filter(username__icontains=search_query)
+    posts = Post.objects.prefetch_related('like').select_related('owner'). \
         select_related('owner__profile').filter(text__icontains=search_query)
     return render(request, 'search.html', {'users': users, 'posts': posts})
 
@@ -190,10 +192,12 @@ def follow(request, profile_id):
 
 @login_required
 def profile(request, profile_id):
-    user_profile = Profile.objects.get(id=profile_id)
+    user_profile = get_object_or_404(Profile.objects.select_related('user').prefetch_related('following'),
+                                     id=profile_id)
     if user_profile == request.user.profile:
         return redirect('profile my')
-    posts = Post.objects.filter(owner=user_profile.user)
+    posts = Post.objects.select_related('owner__profile').select_related('owner'). \
+        prefetch_related('like').filter(owner=user_profile.user)
     return render(request, 'profile.html', {'profile': user_profile, 'posts': posts})
 
 
@@ -207,14 +211,17 @@ def feed(request):
 
 @login_required
 def followers(request, profile_id):
-    user_profile = Profile.objects.get(id=profile_id)
+    user_profile = get_object_or_404(Profile.objects.select_related('user').prefetch_related('followers__user'). \
+                                     prefetch_related('followers__user__posts'), id=profile_id)
     user_followers = user_profile.followers.all()
     return render(request, 'followers.html', {'profile': user_profile, 'followers': user_followers})
 
 
 @login_required
 def following(request, profile_id):
-    user_profile = Profile.objects.get(id=profile_id)
+    user_profile = get_object_or_404(Profile.objects.select_related('user'). \
+                                     prefetch_related('following').prefetch_related('following__user'). \
+                                     prefetch_related('following__user__posts'), id=profile_id)
     user_following = user_profile.following.all()
     return render(request, 'following.html', {'profile': user_profile, 'following': user_following})
 
@@ -230,7 +237,7 @@ def notifications_view(request):
 
 @login_required
 def hashtag_search(request, hashtag):
-    posts = Post.objects.select_related('owner').select_related('owner__profile').\
+    posts = Post.objects.select_related('owner').select_related('owner__profile'). \
         prefetch_related('like').filter(text__icontains='#' + hashtag)
     return render(request, 'search.html', {'users': None, 'posts': posts})
 
@@ -261,11 +268,12 @@ def send_message(request, receiver_id):
 
 @login_required
 def message_chat(request, chat_id):
-    chat = Chat.objects.get(id=chat_id)
+    chat = get_object_or_404(Chat.objects.select_related('user1').select_related('user2'). \
+                             select_related('user_unread_messages'), id=chat_id)
     if request.user != chat.user1 and request.user != chat.user2:
         return HttpResponseForbidden()
     recipient = chat.user2 if request.user == chat.user1 else chat.user1
-    messages = chat.messages.order_by("-id")
+    messages = chat.messages.order_by("-id").select_related('from_user')
     unread_messages = chat.messages.filter(is_read=False)
     if unread_messages.exists():
         to_user = unread_messages[0].to_user
@@ -291,9 +299,9 @@ def message_chat(request, chat_id):
 
 @login_required
 def all_chats(request):
-    unread_chats = Chat.objects.select_related('user1').select_related('user2').\
+    unread_chats = Chat.objects.select_related('user1').select_related('user2'). \
         filter(user_unread_messages=request.user)
-    read_chats = Chat.objects.select_related('user1').select_related('user2').\
+    read_chats = Chat.objects.select_related('user1').select_related('user2'). \
         filter(Q(user1=request.user) | Q(user2=request.user)) \
         .exclude(user_unread_messages=request.user)
     return render(request, 'chats.html', {'unread_chats': unread_chats, 'read_chats': read_chats})

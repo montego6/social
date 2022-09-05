@@ -18,12 +18,10 @@
     <p>Фолловит: <a href="{% url 'following' profile.id %}">{{ profile.following.count }}</a></p>
     {% if profile in user.profile.following.all %}
     <p>Вы подписаны<img src="{% static 'images/check2.svg' %}" width="32" height="32"></p>
+    <a href="{% url 'follow' profile.id %}" class="btn btn-primary">Отписаться</a>
+    {% else %}
+    <a href="{% url 'follow' profile.id %}" class="btn btn-primary">Подписаться</a>
     {% endif %}
-    <a href="{% url 'follow' profile.id %}" class="btn btn-primary">
-        {% if profile not in user.profile.following.all %}Подписаться
-        {% else %}Отписаться
-        {% endif %}
-    </a>
     <a href="{% url 'message' profile.user.id %}" class="btn btn-primary">Отправить сообщение</a>
     </div>
         <div class="col"></div><div class="col"></div><div class="col"></div>
