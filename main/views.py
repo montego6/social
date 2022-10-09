@@ -33,7 +33,7 @@ def signup(request):
             password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
-            return redirect('home')
+            return redirect('profile my')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
@@ -47,8 +47,6 @@ def profile_my(request):
 
 @login_required
 def add_profile_bio(request):
-    if request.user.profile:
-        return redirect('profile my')
     if request.method == 'POST':
         form = ProfileForm(data=request.POST, files=request.FILES)
         if form.is_valid():
